@@ -19,15 +19,15 @@ function CA1D() {
 
 CA1D.prototype.initRules = function() {
 	this.rules.push(new Rule([[-1, 0], [0, 0], [1, 0]], 0));
-	this.rules.push(new Rule([[-1, 0], [0, 0], [1, 0]], 0));
+	this.rules.push(new Rule([[-1, 0], [0, 0], [1, 1]], 0));
 	//~ this.rules.push(new Rule([[-2, 0], [-1, 0], [0, 0], [1, 1]], 1));
 	this.rules.push(new Rule([[-1, 0], [0, 1], [1, 0]], 1));
 	this.rules.push(new Rule([[-1, 0], [0, 1], [1, 1]], 1));
 	this.rules.push(new Rule([[-1, 1], [0, 0], [1, 0]], 1));
 	this.rules.push(new Rule([[-1, 1], [0, 0], [1, 1]], 1));
 	this.rules.push(new Rule([[-1, 1], [0, 1], [1, 0]], 1));
-	this.rules.push(new Rule([[-1, 1], [0, 1], [1, 1]], 0));
 	//~ this.rules.push(new Rule([[-2, 1], [-1, 1], [0, 1], [1, 1], [2, 1]], 1));
+	this.rules.push(new Rule([[-1, 1], [0, 1], [1, 1]], 0));
 };
 
 CA1D.prototype.getFieldCell = function(row, x) {
@@ -86,7 +86,7 @@ CA1D.prototype.calculateField = function() {
 						//~ console.log(this.rules[ruleCursor]);
 					//~ }
 					this.field.setCell(rowCursor, cellCursor, this.rules[ruleCursor].result);
-					continue;
+					break;
 				}
 			}
 		}
