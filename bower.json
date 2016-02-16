@@ -1,0 +1,23 @@
+{
+  "name": "cellular_automata_1d",
+  "authors": [
+    "Marcel Pfeiffer <pfeiffer.marcel@gmx.de>"
+  ],
+  "description": "",
+  "main": "index.html",
+  "moduleType": [],
+  "license": "MIT",
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "d3": "~3.5.10",
+    "zimit": "FireZenk/zimit"
+  }
+}
