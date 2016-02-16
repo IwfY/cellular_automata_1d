@@ -36,6 +36,7 @@ CA1D.prototype.getFieldCell = function(row, x) {
 
 CA1D.prototype.initVisuals = function() {
 	// draw field
+	var instance = this;
 	var i, j, row, table, ruleCursor, ruleDiv, ruleTable, ruleTr;
 	var xOffsetCursor;
 
@@ -50,7 +51,7 @@ CA1D.prototype.initVisuals = function() {
 	// draw rules
 	for (ruleCursor = 0; ruleCursor < this.rules.length; ++ruleCursor) {
 		ruleDiv = d3.select('#rules .row').append('div').classed({'c1': true}).text(ruleCursor);
-		ruleTable = ruleDiv.append('table').attr('style', 'width: auto;');
+		ruleTable = ruleDiv.append('table').classed({'rule-table': true}).attr('rule-id', ruleCursor).attr('style', 'width: auto;');
 		ruleTr = ruleTable.append('tr');
 
 		for (xOffsetCursor = this.rules[ruleCursor].getMinXOffset(); xOffsetCursor <= this.rules[ruleCursor].getMaxXOffset(); ++xOffsetCursor) {
@@ -61,8 +62,16 @@ CA1D.prototype.initVisuals = function() {
 
 		// result line
 		for (xOffsetCursor = this.rules[ruleCursor].getMinXOffset(); xOffsetCursor <= this.rules[ruleCursor].getMaxXOffset(); ++xOffsetCursor) {
-			ruleTr.append('td').classed({'field-cell' : true, 'black': xOffsetCursor === 0 && this.rules[ruleCursor].result});
+			ruleTr.append('td').classed({'field-cell' : true, 'result': xOffsetCursor === 0, 'black': xOffsetCursor === 0 && this.rules[ruleCursor].result});
 		}
+
+		ruleTable.on('click', function () {
+			var ruleId = d3.select(this).attr('rule-id');
+			instance.rules[ruleId].result = !instance.rules[ruleId].result;
+			d3.select('#rules table[rule-id="' + ruleId + '"] .result').classed({'black': instance.rules[ruleId].result});
+			instance.calculateField();
+			instance.redrawField();
+		});
 	}
 };
 

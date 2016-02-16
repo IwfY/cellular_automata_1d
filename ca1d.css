@@ -7,6 +7,11 @@ body {
 	width: auto;
 }
 
+#field table td[row="0"]:hover {
+	cursor: pointer;
+	background-color: #808080;
+}
+
 td.field-cell {
 	width: 10px;
 	height: 10px;
@@ -17,4 +22,12 @@ td.field-cell {
 
 td.black {
 	background-color: #000000;
+}
+
+table.rule-table {
+	cursor: pointer;
+}
+
+table.rule-table:hover .result {
+	background-color: #808080;
 }
