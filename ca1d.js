@@ -8,7 +8,7 @@ function CA1D() {
 	this.rules = [];
 	this.initRules();
 	this.fieldWidth = 100;
-	this.fieldHeight = 50;
+	this.fieldHeight = 100;
 
 	this.field = new Field(this.fieldWidth, this.fieldHeight);
 
@@ -19,13 +19,15 @@ function CA1D() {
 
 CA1D.prototype.initRules = function() {
 	this.rules.push(new Rule([[-1, 0], [0, 0], [1, 0]], 0));
-	this.rules.push(new Rule([[-1, 0], [0, 0], [1, 1]], 0));
+	this.rules.push(new Rule([[-1, 0], [0, 0], [1, 0]], 0));
+	//~ this.rules.push(new Rule([[-2, 0], [-1, 0], [0, 0], [1, 1]], 1));
 	this.rules.push(new Rule([[-1, 0], [0, 1], [1, 0]], 1));
 	this.rules.push(new Rule([[-1, 0], [0, 1], [1, 1]], 1));
 	this.rules.push(new Rule([[-1, 1], [0, 0], [1, 0]], 1));
 	this.rules.push(new Rule([[-1, 1], [0, 0], [1, 1]], 1));
 	this.rules.push(new Rule([[-1, 1], [0, 1], [1, 0]], 1));
 	this.rules.push(new Rule([[-1, 1], [0, 1], [1, 1]], 0));
+	//~ this.rules.push(new Rule([[-2, 1], [-1, 1], [0, 1], [1, 1], [2, 1]], 1));
 };
 
 CA1D.prototype.getFieldCell = function(row, x) {
@@ -35,6 +37,7 @@ CA1D.prototype.getFieldCell = function(row, x) {
 CA1D.prototype.initVisuals = function() {
 	// draw field
 	var i, j, row, table, ruleCursor, ruleDiv, ruleTable, ruleTr;
+	var xOffsetCursor;
 
 	table = d3.select('#field').append('table');
 	for (i = 0; i < this.fieldHeight; ++i) {
@@ -50,15 +53,16 @@ CA1D.prototype.initVisuals = function() {
 		ruleTable = ruleDiv.append('table').attr('style', 'width: auto;');
 		ruleTr = ruleTable.append('tr');
 
-		ruleTr.append('td').classed({'black': this.rules[ruleCursor].fieldParts[0][1]});
-		ruleTr.append('td').classed({'black': this.rules[ruleCursor].fieldParts[1][1]});
-		ruleTr.append('td').classed({'black': this.rules[ruleCursor].fieldParts[2][1]});
+		for (xOffsetCursor = this.rules[ruleCursor].getMinXOffset(); xOffsetCursor <= this.rules[ruleCursor].getMaxXOffset(); ++xOffsetCursor) {
+			ruleTr.append('td').classed({'field-cell' : true, 'black': this.rules[ruleCursor].getXOffsetState(xOffsetCursor)});
+		}
 
 		ruleTr = ruleTable.append('tr');
 
-		ruleTr.append('td').classed({'black': 0});
-		ruleTr.append('td').classed({'black': this.rules[ruleCursor].result});
-		ruleTr.append('td').classed({'black': 0});
+		// result line
+		for (xOffsetCursor = this.rules[ruleCursor].getMinXOffset(); xOffsetCursor <= this.rules[ruleCursor].getMaxXOffset(); ++xOffsetCursor) {
+			ruleTr.append('td').classed({'field-cell' : true, 'black': xOffsetCursor === 0 && this.rules[ruleCursor].result});
+		}
 	}
 };
 
@@ -141,6 +145,37 @@ Rule.prototype.matches = function(field, row, cellX) {
 
 	return true;
 };
+
+Rule.prototype.getMinXOffset = function() {
+	var i, min;
+	min = this.fieldParts[0][0];
+	for	(i = 1; i < this.fieldParts.length; ++i) {
+		min = Math.min(min, this.fieldParts[i][0]);
+	}
+
+	return min;
+}
+
+Rule.prototype.getMaxXOffset = function() {
+	var i, max;
+	max = this.fieldParts[0][0];
+	for	(i = 1; i < this.fieldParts.length; ++i) {
+		max = Math.max(max, this.fieldParts[i][0]);
+	}
+
+	return max;
+}
+
+Rule.prototype.getXOffsetState = function(xOffset) {
+	var i;
+	for	(i = 0; i < this.fieldParts.length; ++i) {
+		if (this.fieldParts[i][0] === xOffset) {
+			return this.fieldParts[i][1];
+		}
+	}
+
+	return max;
+}
 
 function init() {
 	var ca1D = new CA1D();
