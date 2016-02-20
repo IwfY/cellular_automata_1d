@@ -8,7 +8,7 @@ function CA1D() {
 	this.rules = [];
 	this.initRules();
 	this.fieldWidth = 130;
-	this.fieldHeight = 90;
+	this.fieldHeight = 50;
 
 	this.field = new Field(this.fieldWidth, this.fieldHeight);
 
@@ -86,6 +86,29 @@ CA1D.prototype.initVisuals = function() {
 			instance.calculateField();
 			instance.redrawField();
 			instance.setDirty(false);
+		});
+
+	// shuffle first row button
+	d3.select('#shuffleRow').on('click', function () {
+			var x, newState, ratio;
+			for (x = 0; x < instance.field.width; ++x) {
+				ratio = +d3.select('#shuffleRowBlackRatio').node().value;
+				newState = Math.random() > ratio ? 1 : 0;
+				instance.field.setCell(0, x, newState);
+				d3.select('#field table .field-cell[row="0"][x="' + x + '"]').classed({'black': newState});
+			}
+			instance.setDirty(true);
+		});
+
+	// shuffle rules
+	d3.select('#shuffleRules').on('click', function () {
+			var ruleCursor, newState;
+			for (ruleCursor = 0; ruleCursor < instance.rules.length; ++ruleCursor) {
+				newState = Math.random() > 0.5 ? 1 : 0;
+				instance.rules[ruleCursor].result = newState;
+				d3.select('#rules table[rule-id="' + ruleCursor + '"] .result').classed({'black': instance.rules[ruleCursor].result});
+			}
+			instance.setDirty(true);
 		});
 };
 
