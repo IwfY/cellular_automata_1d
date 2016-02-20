@@ -7,8 +7,8 @@ function CA1D() {
 
 	this.rules = [];
 	this.initRules();
-	this.fieldWidth = 100;
-	this.fieldHeight = 100;
+	this.fieldWidth = 130;
+	this.fieldHeight = 90;
 
 	this.field = new Field(this.fieldWidth, this.fieldHeight);
 
@@ -48,6 +48,14 @@ CA1D.prototype.initVisuals = function() {
 		}
 	}
 
+	d3.selectAll('#field table .field-cell[row="0"]').on('click', function() {
+		var x = +d3.select(this).attr('x');
+		var oldState = instance.field.getCell(0, x);
+		instance.field.setCell(0, x, +(!oldState));
+		d3.select(this).classed({'black': !oldState});
+		instance.setDirty(true);
+	});
+
 	// draw rules
 	for (ruleCursor = 0; ruleCursor < this.rules.length; ++ruleCursor) {
 		ruleDiv = d3.select('#rules .row').append('div').classed({'c1': true}).text(ruleCursor);
@@ -66,21 +74,34 @@ CA1D.prototype.initVisuals = function() {
 		}
 
 		ruleTable.on('click', function () {
-			var ruleId = d3.select(this).attr('rule-id');
-			instance.rules[ruleId].result = !instance.rules[ruleId].result;
-			d3.select('#rules table[rule-id="' + ruleId + '"] .result').classed({'black': instance.rules[ruleId].result});
+				var ruleId = d3.select(this).attr('rule-id');
+				instance.rules[ruleId].result = +(!instance.rules[ruleId].result);
+				d3.select('#rules table[rule-id="' + ruleId + '"] .result').classed({'black': instance.rules[ruleId].result});
+				instance.setDirty(true);
+			});
+	}
+
+	// redraw button
+	d3.select('#redraw').on('click', function () {
 			instance.calculateField();
 			instance.redrawField();
+			instance.setDirty(false);
 		});
-	}
+};
+
+CA1D.prototype.setDirty = function(dirty) {
+	d3.select('#redraw').classed({'btn-black': dirty});
 };
 
 CA1D.prototype.redrawField = function() {
 	// draw field
-	var i, j
+	var i, j, oldState;
 	for (i = 0; i < this.fieldHeight; ++i) {
 		for (j = 0; j < this.fieldWidth; ++j) {
-			d3.select('.field-cell[row="' + i + '"][x="' + j + '"]').classed({'black' : this.field.getCell(i, j)});
+			oldState = +d3.select('.field-cell[row="' + i + '"][x="' + j + '"]').classed('black');
+			if (oldState !== this.field.getCell(i, j)) {
+				d3.select('.field-cell[row="' + i + '"][x="' + j + '"]').classed({'black' : this.field.getCell(i, j)});
+			}
 		}
 	}
 };
@@ -91,16 +112,13 @@ CA1D.prototype.calculateField = function() {
 		for (cellCursor = 0; cellCursor < this.field.width; ++cellCursor) {
 			for (ruleCursor = 0; ruleCursor < this.rules.length; ++ruleCursor) {
 				if (this.rules[ruleCursor].matches(this.field, rowCursor - 1, cellCursor)) {
-					//~ if (this.rules[ruleCursor].result === 1) {
-						//~ console.log(this.rules[ruleCursor]);
-					//~ }
 					this.field.setCell(rowCursor, cellCursor, this.rules[ruleCursor].result);
 					break;
 				}
 			}
 		}
 	}
-}
+};
 
 function Field(width, height) {
 	var i, j;
@@ -118,14 +136,15 @@ function Field(width, height) {
 
 	this.setCell(0, 8, 1);
 	this.setCell(0, 10, 1);
-	this.setCell(0, 30, 1);
-	this.setCell(0, 71, 1);
 }
 
 Field.prototype.getCell = function(row, x) {
 	if (x < 0) {
 		return this.field[(row + 1) * this.width + x];
+	} else if (x > this.width - 1) {
+		return this.field[(row - 1) * this.width + x];
 	}
+
 	return this.field[row * this.width + x];
 }
 
